@@ -1,7 +1,7 @@
 const WIDTH = 7;
 const HEIGHT = 6;
 
-let currentPlayer = 2; // active player: 1 or 2
+let currentPlayer = 1; // active player: 1 or 2
 let board = []; // array of rows, each row is array of cells  (board[y][x])
 
 //  makeBoard: create in-JS board structure:
@@ -10,14 +10,14 @@ let board = []; // array of rows, each row is array of cells  (board[y][x])
 function makeBoard() {
   //* TODO: set "board" to empty HEIGHT x WIDTH matrix array
   // this could be improved by creating the board dynamically
-  const board = [
+  return (board = [
     [null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null],
-  ];
+  ]);
 }
 
 //* TODO: get "htmlBoard" variable from the item in HTML w/ID of "board"
@@ -52,14 +52,25 @@ function makeHtmlBoard() {
   }
 }
 
-function findSpotForCol(x) {
-  //! TODO: write the real version of this, rather than always returning 0
-  // y is the first number in the id, it represents the height coordinate for the game piece. The lowest coordinate (ie. the bottom row) is 5. 0 is the top row. The x and y values are the same but their coordinate pairs are reversed. Their values are inverted, so the top level of the board is the lowest value (0)
-  // Should call this function in placeInTable()?
-  // if any pieces exist in this column (have this x attribute), place new piece at y of last pice - 1;
-  // if no pieces exist for this x, give y value of 5.
-  // if piece exists at y of 0, return
-  console.log(this.x);
+//* TODO: write the real version of this, rather than always returning 0
+
+//? How could I do this without hard-coding the iteration? Use the HEIGHT value decrement the y value and return first y without a piece!
+
+function findY(x) {
+  if (board[5][x] === null) {
+    return 5;
+  } else if (board[4][x] === null) {
+    return 4;
+  } else if (board[3][x] === null) {
+    return 3;
+  } else if (board[2][x] === null) {
+    return 2;
+  } else if (board[1][x] === null) {
+    return 1;
+  } else if (board[0][x] === null) {
+    return 0;
+  }
+  return null;
 }
 
 /** placeInTable: update DOM to place piece into HTML table of board */
@@ -70,7 +81,7 @@ function placeInTable(y, x) {
   const gamePiece = document.createElement("div");
   // gamePiece.classList.add("piece");
   gamePiece.classList.add(`piece`, `p${currentPlayer}`, `${y}-${x}`);
-  board.push(gamePiece.classList.value);
+  // board.push(gamePiece.classList.value);
   console.log(board);
   cell.append(gamePiece);
 }
@@ -89,9 +100,10 @@ function handleClick(evt) {
   let x = +evt.target.id;
 
   // get next spot in column (if none, ignore click)
-  let y = findSpotForCol(x);
+  let y = findY(x);
   // place piece in board and add to HTML table
   // ! TODO: add line to update in-memory board -- update in DOM?
+  board[y][x] = currentPlayer;
   placeInTable(y, x);
 
   // check for win
@@ -112,7 +124,7 @@ function handleClick(evt) {
 
 //? Question: I originally wrote this function with currentPlayer as an argument & the currentPlayer value wouldn't update on the global scope after calling the function. Once I removed the argument, the function worked the way it should (by updating the global value). Why is this?
 const switchPlayer = () => {
-  currentPlayer = currentPlayer === "1" ? "2" : "1";
+  currentPlayer = currentPlayer === 1 ? 2 : 1;
 };
 
 function checkForTie() {
@@ -133,6 +145,7 @@ function switchPlayers(currentPlayer) {
 }
 
 /** checkForWin: check board cell-by-cell for "does a win start here?" */
+function findOneOrTwo() {}
 
 function checkForWin() {
   function _win(cells) {
@@ -149,7 +162,7 @@ function checkForWin() {
         board[(y, x)] === currentPlayer
     );
   }
-
+  console.log("checking");
   // TODO: read and understand this code. Add comments to help you.
   //! Comment this code
   for (let y = 0; y < HEIGHT; y++) {
