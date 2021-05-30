@@ -1,11 +1,10 @@
-//! GAME LOGIC //
+//! GAME LOGIC !//
 
 const WIDTH = 7;
 const HEIGHT = 6;
 
 let currentPlayer = 1;
-
-let gamePiece = [];
+let gameOver = false;
 
 let board = [
   [null, null, null, null, null, null, null],
@@ -22,10 +21,14 @@ function move(y, x, currentPlayer) {
   makeGamePiece(y, x, board);
   checkForWin(board);
   if (checkForWin()) {
-    window.alert(`Player ${currentPlayer} won!`);
+    setTimeout(
+      () => window.alert(`Player ${currentPlayer} is the winner!`),
+      200
+    );
+    return (gameOver = true);
   }
   checkForTie(board);
-  switchPlayer(currentPlayer);
+  // switchPlayer(currentPlayer);
 }
 
 function makeGamePiece(y, x, board) {
@@ -102,33 +105,6 @@ function checkForWin() {
 
 //! RENDER GAME UI //
 
-function placeInTable(y, x) {
-  //* TODO: make a div and insert into correct table cell
-  const cell = document.getElementById(`${y}-${x}`);
-  const gamePiece = document.createElement("div");
-  gamePiece.classList.add(`piece`, `p${currentPlayer}`, `${y}-${x}`);
-  console.log(board);
-  cell.append(gamePiece);
-}
-
-//* TODO: add comment for this code
-// Nested for loops - inner loop runs 7 times (the value of WIDTH) then the outer loop is executed once. The innner loop completes a full cycle for every one time the outer loop is executed.
-// Whenever the outer loop runs, a new table row is created. Every time the inner loop runs, a new table cell is created for that row. Each cell is appeneded to a table row; each iteration of the outer loop appends a table row to the
-// Cell creation - Each cell is created with a unique id, which is composed of the values for y and x at that particular instance of the loop. It would be more intuitive if the id could represent standard x and y graph coordinates, which require a lot of refactoring.
-
-function makeHeadCells() {
-  const top = document.createElement("tr");
-  top.setAttribute("id", "column-top");
-  top.addEventListener("click", handleClick);
-
-  for (let x = 0; x < WIDTH; x++) {
-    const headCell = document.createElement("td");
-    headCell.setAttribute("id", x);
-    top.append(headCell);
-  }
-  htmlBoard.append(top);
-}
-
 function makeHtmlBoard() {
   makeHeadCells();
   for (let y = 0; y < HEIGHT; y++) {
@@ -140,6 +116,42 @@ function makeHtmlBoard() {
     }
     htmlBoard.append(row);
   }
+}
+
+//* TODO: add comment for this code
+// Nested for loops - inner loop runs 7 times (the value of WIDTH) then the outer loop is executed once. The innner loop completes a full cycle for every one time the outer loop is executed.
+// Whenever the outer loop runs, a new table row is created. Every time the inner loop runs, a new table cell is created for that row. Each cell is appeneded to a table row; each iteration of the outer loop appends a table row to the previous one.
+// Cell creation - Each cell is created with a unique id, which is composed of the values for y and x at that particular instance of the loop. It would be more intuitive if the id could represent standard x and y graph coordinates.
+
+function makeHeadCells() {
+  const top = document.createElement("tr");
+  top.setAttribute("id", "column-top");
+  top.addEventListener("click", htmlMove);
+  for (let x = 0; x < WIDTH; x++) {
+    const headCell = document.createElement("td");
+    headCell.setAttribute("id", x);
+    top.append(headCell);
+  }
+  htmlBoard.append(top);
+}
+
+function htmlMove(evt) {
+  if (!gameOver) {
+    let x = +evt.target.id;
+    let y = findY(x);
+    move(y, x, currentPlayer);
+    placeInTable(y, x);
+    switchPlayer();
+  } else {
+    return;
+  }
+}
+
+function placeInTable(y, x) {
+  const cell = document.getElementById(`${y}-${x}`);
+  const gamePiece = document.createElement("div");
+  gamePiece.classList.add(`piece`, `p${currentPlayer}`, `${y}-${x}`);
+  cell.append(gamePiece);
 }
 
 function findY(x) {
@@ -157,13 +169,6 @@ function findY(x) {
     return 0;
   }
   return null;
-}
-
-function handleClick(evt) {
-  let x = +evt.target.id;
-  let y = findY(x);
-  move(y, x, currentPlayer);
-  placeInTable(y, x);
 }
 
 makeHtmlBoard();
