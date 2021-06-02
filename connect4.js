@@ -18,7 +18,7 @@ let board = [
 const htmlBoard = document.getElementById("board");
 
 function move(y, x, currentPlayer) {
-  makeGamePiece(y, x, board);
+  addMoveToBoard(y, x, board, currentPlayer);
   checkForWin(board);
   if (checkForWin()) {
     setTimeout(
@@ -31,7 +31,7 @@ function move(y, x, currentPlayer) {
   // switchPlayer(currentPlayer);
 }
 
-function makeGamePiece(y, x, board) {
+function addMoveToBoard(y, x, board, currentPlayer) {
   if (board[y][x] === null) {
     board[y][x] = currentPlayer;
   } else {
@@ -126,7 +126,7 @@ function makeHtmlBoard() {
 function makeHeadCells() {
   const top = document.createElement("tr");
   top.setAttribute("id", "column-top");
-  top.addEventListener("click", htmlMove);
+  top.addEventListener("click", handlePlayerMove);
   for (let x = 0; x < WIDTH; x++) {
     const headCell = document.createElement("td");
     headCell.setAttribute("id", x);
@@ -135,7 +135,7 @@ function makeHeadCells() {
   htmlBoard.append(top);
 }
 
-function htmlMove(evt) {
+function handlePlayerMove(evt) {
   if (!gameOver) {
     let x = +evt.target.id;
     let y = findY(x);
