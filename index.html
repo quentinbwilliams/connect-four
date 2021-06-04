@@ -5,6 +5,19 @@
 </head>
 <body>
 <h1>Connect Four!</h1>
+<form action="" method="get" class="game-initializer">
+  <div class="player1">
+    <label for="player1">Player One Color: </label>
+    <input type="text" name="player1-color" id="player1-color" required>
+  </div>
+  <div class="player2">
+    <label for="player2">Player Two Color: </label>
+    <input type="text" name="player2-color" id="player2-color" required>
+  </div>
+  <div class="start-button">
+    <input type="submit" value="Start game">
+  </div>
+</form>
 
 <div id="game">
   <table id="board"></table>

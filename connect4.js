@@ -1,75 +1,66 @@
-//! GAME LOGIC !//
-
 const WIDTH = 7;
 const HEIGHT = 6;
 
-let currentPlayer = 1;
-let gameOver = false;
-
-let board = [
-  [null, null, null, null, null, null, null],
-  [null, null, null, null, null, null, null],
-  [null, null, null, null, null, null, null],
-  [null, null, null, null, null, null, null],
-  [null, null, null, null, null, null, null],
-  [null, null, null, null, null, null, null],
-];
-
-const htmlBoard = document.getElementById("board");
-
-function move(y, x, currentPlayer) {
-  makeGamePiece(y, x, board);
-  checkForWin(board);
-  if (checkForWin()) {
-    setTimeout(
-      () => window.alert(`Player ${currentPlayer} is the winner!`),
-      200
-    );
-    return (gameOver = true);
+class Game {
+  constructor() {
+    this.board = [
+      [null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null],
+    ];
+    this.players = [player1, player2];
+    this.WIDTH = WIDTH;
+    this.HEIGHT = HEIGHT;
+    this.currentPlayer = player1;
+    this.gameOver = false;
   }
-  checkForTie(board);
-  // switchPlayer(currentPlayer);
-}
-
-function makeGamePiece(y, x, board) {
-  if (board[y][x] === null) {
-    board[y][x] = currentPlayer;
-  } else {
-    window.alert("Invalid location");
-    return;
+  move(y, x, currentPlayer) {
+    this.addMoveToBoard(y, x, board, currentPlayer);
+    checkForWin(board);
+    if (checkForWin()) {
+      setTimeout(
+        () => window.alert(`Player ${currentPlayer} is the winner!`),
+        200
+      );
+      return (this.gameOver = true);
+    }
+    this.checkForTie(board);
+    // switchPlayer(currentPlayer);
   }
-}
-
-const switchPlayer = () => {
-  currentPlayer = currentPlayer === 1 ? 2 : 1;
-};
-
-function checkForTie() {
-  if (board[0].every((cell) => cell !== null)) {
-    window.alert("Tie Game!");
+  addMoveToBoard(y, x, board, currentPlayer) {
+    if (this.board[y][x] === null) {
+      this.board[y][x] = this.currentPlayer;
+    } else {
+      window.alert("Invalid location");
+      return;
+    }
+  }
+  switchPlayer() {
+    this.currentPlayer = this.currentPlayer === player1 ? player2 : player1;
+  }
+  checkForTie() {
+    if (this.board[0].every((cell) => cell !== null)) {
+      window.alert("Tie Game!");
+    }
   }
 }
 
 function checkForWin() {
   function _win(cells) {
-    // Check four cells to see if they're all color of current player
-    //  - cells: list of four (y, x) cells
-    //  - returns true if all are legal coordinates & all match currPlayer
-
     return cells.every(
       ([y, x]) =>
         y >= 0 &&
-        y < HEIGHT &&
+        y < this.HEIGHT &&
         x >= 0 &&
-        x < WIDTH &&
-        board[y][x] === currentPlayer
+        x < this.WIDTH &&
+        this.board[y][x] === this.currentPlayer
     );
   }
-
   for (let y = 0; y < HEIGHT; y++) {
     for (let x = 0; x < WIDTH; x++) {
-      // get "check list" of 4 cells (starting here) for each of the different
-      // ways to win
       const horiz = [
         [y, x],
         [y, x + 1],
@@ -94,14 +85,26 @@ function checkForWin() {
         [y + 2, x - 2],
         [y + 3, x - 3],
       ];
-
-      // find winner (only checking each win-possibility as needed)
       if (_win(horiz) || _win(vert) || _win(diagDR) || _win(diagDL)) {
         return true;
       }
     }
   }
 }
+
+class Player {
+  constructor(color) {
+    this.color = color;
+  }
+}
+
+let player1Color = document.querySelector("#player1-color");
+const player1 = new Player(`${player1Color}`);
+
+let player2Color = document.querySelector("#player2-color");
+const player2 = new Player(`${player2Color}`);
+
+const htmlBoard = document.getElementById("board");
 
 //! RENDER GAME UI //
 
@@ -118,15 +121,10 @@ function makeHtmlBoard() {
   }
 }
 
-//* TODO: add comment for this code
-// Nested for loops - inner loop runs 7 times (the value of WIDTH) then the outer loop is executed once. The innner loop completes a full cycle for every one time the outer loop is executed.
-// Whenever the outer loop runs, a new table row is created. Every time the inner loop runs, a new table cell is created for that row. Each cell is appeneded to a table row; each iteration of the outer loop appends a table row to the previous one.
-// Cell creation - Each cell is created with a unique id, which is composed of the values for y and x at that particular instance of the loop. It would be more intuitive if the id could represent standard x and y graph coordinates.
-
 function makeHeadCells() {
   const top = document.createElement("tr");
   top.setAttribute("id", "column-top");
-  top.addEventListener("click", htmlMove);
+  top.addEventListener("click", handlePlayerMove);
   for (let x = 0; x < WIDTH; x++) {
     const headCell = document.createElement("td");
     headCell.setAttribute("id", x);
@@ -135,7 +133,7 @@ function makeHeadCells() {
   htmlBoard.append(top);
 }
 
-function htmlMove(evt) {
+function handlePlayerMove(evt) {
   if (!gameOver) {
     let x = +evt.target.id;
     let y = findY(x);
