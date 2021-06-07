@@ -1,172 +1,203 @@
-const WIDTH = 7;
-const HEIGHT = 6;
+//! GAME LOGIC !//
 
 class Game {
-  constructor() {
-    this.board = [
-      [null, null, null, null, null, null, null],
-      [null, null, null, null, null, null, null],
-      [null, null, null, null, null, null, null],
-      [null, null, null, null, null, null, null],
-      [null, null, null, null, null, null, null],
-      [null, null, null, null, null, null, null],
-    ];
-    this.players = [player1, player2];
-    this.WIDTH = WIDTH;
-    this.HEIGHT = HEIGHT;
-    this.currentPlayer = player1;
-    this.gameOver = false;
-  }
-  move(y, x, currentPlayer) {
-    this.addMoveToBoard(y, x, board, currentPlayer);
-    checkForWin(board);
-    if (checkForWin()) {
-      setTimeout(
-        () => window.alert(`Player ${currentPlayer} is the winner!`),
-        200
-      );
-      return (this.gameOver = true);
-    }
-    this.checkForTie(board);
-    // switchPlayer(currentPlayer);
-  }
-  addMoveToBoard(y, x, board, currentPlayer) {
-    if (this.board[y][x] === null) {
-      this.board[y][x] = this.currentPlayer;
-    } else {
-      window.alert("Invalid location");
-      return;
-    }
-  }
-  switchPlayer() {
-    this.currentPlayer = this.currentPlayer === player1 ? player2 : player1;
-  }
-  checkForTie() {
-    if (this.board[0].every((cell) => cell !== null)) {
-      window.alert("Tie Game!");
-    }
-  }
-}
-
-function checkForWin() {
-  function _win(cells) {
-    return cells.every(
-      ([y, x]) =>
-        y >= 0 &&
-        y < this.HEIGHT &&
-        x >= 0 &&
-        x < this.WIDTH &&
-        this.board[y][x] === this.currentPlayer
-    );
-  }
-  for (let y = 0; y < HEIGHT; y++) {
-    for (let x = 0; x < WIDTH; x++) {
-      const horiz = [
-        [y, x],
-        [y, x + 1],
-        [y, x + 2],
-        [y, x + 3],
-      ];
-      const vert = [
-        [y, x],
-        [y + 1, x],
-        [y + 2, x],
-        [y + 3, x],
-      ];
-      const diagDR = [
-        [y, x],
-        [y + 1, x + 1],
-        [y + 2, x + 2],
-        [y + 3, x + 3],
-      ];
-      const diagDL = [
-        [y, x],
-        [y + 1, x - 1],
-        [y + 2, x - 2],
-        [y + 3, x - 3],
-      ];
-      if (_win(horiz) || _win(vert) || _win(diagDR) || _win(diagDL)) {
-        return true;
+  constructor(y, x, color1, color2) {
+    this.height = y;
+    this.width = x;
+    this.player1 = color1;
+    this.player2 = color2;
+    this.currentPlayer = this.player1 || this.player2;
+    this.makeBoard = (HEIGHT, WIDTH) => {
+      const board = [];
+      for (let y = 0; y < HEIGHT; y++) {
+        let newRow = new Array(WIDTH).fill(null);
+        board.push(newRow);
       }
-    }
+      return board;
+    };
+    this.board = this.makeBoard(this.height, this.width);
+    this.gameOver = false;
+    this.switchPlayer = () => {
+      this.currentPlayer = this.currentPlayer === player1 ? player2 : player1;
+    };
+
+    this.checkForTie = () => {
+      if (this.board[0].indexOf(null) === -1) {
+        console.log("Tie Game!");
+      }
+    };
+    this.checkForWin = (height, width) => {
+      this.height = height;
+      this.width = width;
+      function _win(cells) {
+        return cells.every(
+          ([y, x]) =>
+            y >= 0 &&
+            y < height &&
+            x >= 0 &&
+            x < width &&
+            this.board[y][x] === this.currentPlayer.color
+        );
+      }
+      for (let y = 0; y < this.height; y++) {
+        for (let x = 0; x < this.width; x++) {
+          console.log("made it this far");
+          const horiz = [
+            [y, x],
+            [y, x + 1],
+            [y, x + 2],
+            [y, x + 3],
+          ];
+          const vert = [
+            [y, x],
+            [y + 1, x],
+            [y + 2, x],
+            [y + 3, x],
+          ];
+          const diagDR = [
+            [y, x],
+            [y + 1, x + 1],
+            [y + 2, x + 2],
+            [y + 3, x + 3],
+          ];
+          const diagDL = [
+            [y, x],
+            [y + 1, x - 1],
+            [y + 2, x - 2],
+            [y + 3, x - 3],
+          ];
+
+          // find winner (only checking each win-possibility as needed)
+          if (_win(horiz) || _win(vert) || _win(diagDR) || _win(diagDL)) {
+            console.log("win");
+            this.gameOver = true;
+            return true;
+          }
+        }
+      }
+    };
+    this.playerMove = (y, x) => {
+      this.board[y][x] = this.currentPlayer.color;
+      let move = [y, x];
+      this.currentPlayer.moves.push(move);
+      this.switchPlayer();
+      if (this.checkForWin()) {
+        return `${this.currentPlayer} wins!`;
+      }
+    };
   }
 }
 
-class Player {
-  constructor(color) {
-    this.color = color;
-  }
+// class Player {
+//   constructor(num, color) {
+//     this.player = num;
+//     this.color = color;
+//     this.moves = [];
+//   }
+// }
+
+const submit = document.querySelector("#submit");
+submit.addEventListener("click", initializeGame);
+
+function initializeGame() {
+  p1color = document.querySelector("#player1-color");
+  p2color = document.querySelector("#player2-color");
+  const game = new Game(5, 6, p1color, p2color);
+  return game;
 }
 
-let player1Color = document.querySelector("#player1-color");
-const player1 = new Player(`${player1Color}`);
+// const player1 = new Player(1, "red");
 
-let player2Color = document.querySelector("#player2-color");
-const player2 = new Player(`${player2Color}`);
+// const player2 = new Player(2, "black");
 
-const htmlBoard = document.getElementById("board");
+// const game = new Game(7, 6);
 
-//! RENDER GAME UI //
+// console.log();
 
-function makeHtmlBoard() {
-  makeHeadCells();
-  for (let y = 0; y < HEIGHT; y++) {
-    const row = document.createElement("tr");
-    for (let x = 0; x < WIDTH; x++) {
-      const cell = document.createElement("td");
-      cell.setAttribute("id", `${y}-${x}`);
-      row.append(cell);
-    }
-    htmlBoard.append(row);
-  }
-}
+// game.playerMove(2, 0);
+// game.playerMove(2, 1);
+// game.playerMove(2, 2);
+// game.playerMove(1, 0);
 
-function makeHeadCells() {
-  const top = document.createElement("tr");
-  top.setAttribute("id", "column-top");
-  top.addEventListener("click", handlePlayerMove);
-  for (let x = 0; x < WIDTH; x++) {
-    const headCell = document.createElement("td");
-    headCell.setAttribute("id", x);
-    top.append(headCell);
-  }
-  htmlBoard.append(top);
-}
+// console.log(game.board);
+// console.log(player1);
+// console.log(player2);
 
-function handlePlayerMove(evt) {
-  if (!gameOver) {
-    let x = +evt.target.id;
-    let y = findY(x);
-    move(y, x, currentPlayer);
-    placeInTable(y, x);
-    switchPlayer();
-  } else {
-    return;
-  }
-}
+// let matches = [];
 
-function placeInTable(y, x) {
-  const cell = document.getElementById(`${y}-${x}`);
-  const gamePiece = document.createElement("div");
-  gamePiece.classList.add(`piece`, `p${currentPlayer}`, `${y}-${x}`);
-  cell.append(gamePiece);
-}
-
-function findY(x) {
-  if (board[5][x] === null) {
-    return 5;
-  } else if (board[4][x] === null) {
-    return 4;
-  } else if (board[3][x] === null) {
-    return 3;
-  } else if (board[2][x] === null) {
-    return 2;
-  } else if (board[1][x] === null) {
-    return 1;
-  } else if (board[0][x] === null) {
-    return 0;
-  }
-  return null;
-}
-
-makeHtmlBoard();
+// this.checkForWin = () => {};
+//     this.getHorizWins = () => {
+//       let horizWins = [];
+//       for (let y = 0; y < this.height; y++) {
+//         for (let x = 0; x < this.width; x++) {
+//           const horiz = [
+//             [y, x],
+//             [y, x + 1],
+//             [y, x + 2],
+//             [y, x + 3],
+//           ];
+//           horizWins.push(horiz);
+//         }
+//       }
+//       return horizWins;
+//     };
+//     this.getVertWins = () => {
+//       let vertWins = [];
+//       for (let y = 0; y < this.height; y++) {
+//         for (let x = 0; x < this.width; x++) {
+//           const vert = [
+//             [y, x],
+//             [y + 1, x],
+//             [y + 2, x],
+//             [y + 3, x],
+//           ];
+//           vertWins.push(vert);
+//         }
+//       }
+//       return vertWins;
+//     };
+//     this.getDiagDRWins = () => {
+//       let diagDRWins = [];
+//       for (let y = 0; y < this.height; y++) {
+//         for (let x = 0; x < this.width; x++) {
+//           const diagDR = [
+//             [y, x],
+//             [y + 1, x + 1],
+//             [y + 2, x + 2],
+//             [y + 3, x + 3],
+//           ];
+//           diagDRWins.push(diagDR);
+//         }
+//       }
+//       return diagDRWins;
+//     };
+//     this.getDiagDLWins = () => {
+//       let diagDLWins = [];
+//       for (let y = 0; y < this.height; y++) {
+//         for (let x = 0; x < this.width; x++) {
+//           const diagDL = [
+//             [y, x],
+//             [y + 1, x - 1],
+//             [y + 2, x - 2],
+//             [y + 3, x - 3],
+//           ];
+//           diagDLWins.push(diagDL);
+//         }
+//       }
+//       return diagDLWins;
+//     };
+//     this.horizWins = this.getHorizWins().reverse();
+//     this.vertWins = this.getVertWins().reverse();
+//     this.diagDRWins = this.getDiagDRWins().reverse();
+//     this.diagDLWins = this.getDiagDLWins().reverse();
+//     this.winCoords = [
+//       ...this.horizWins,
+//       ...this.vertWins,
+//       ...this.diagDRWins,
+//       ...this.diagDLWins,
+//     ];
+// this.checkForWin = () => {
+//   for (let i = 0; i < matchArray.length; i++) {
+//     return currentPlayer.moves.includes((pair) => matchArray[i].each(pair));
+//   }
+// };
