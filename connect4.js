@@ -41,7 +41,6 @@ class Game {
       }
       for (let y = 0; y < this.height; y++) {
         for (let x = 0; x < this.width; x++) {
-          console.log("made it this far");
           const horiz = [
             [y, x],
             [y, x + 1],
@@ -97,11 +96,14 @@ class Game {
 // }
 
 const submit = document.querySelector("#submit");
-submit.addEventListener("click", initializeGame);
+submit.addEventListener("click", () => {
+  const game = initializeGame();
+  return game;
+});
 
 function initializeGame() {
-  p1color = document.querySelector("#player1-color");
-  p2color = document.querySelector("#player2-color");
+  p1color = document.querySelector("#player1-color").value;
+  p2color = document.querySelector("#player2-color").value;
   const game = new Game(5, 6, p1color, p2color);
   return game;
 }
